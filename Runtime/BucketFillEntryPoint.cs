@@ -9,7 +9,7 @@ public class BucketFillEntryPoint : BaseMiniGameEntryPoint
     protected override Task LoadInternal()
     {
         var gameManager = Instantiate(gamePrefab);
-        gameManager.GetComponent<BucketFillManager>().SetEntryPoint(this);
+        gameManager.GetComponentInChildren<BucketFillManager>().SetEntryPoint(this);
         return Task.CompletedTask;
     }
 
