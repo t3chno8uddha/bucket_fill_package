@@ -6,17 +6,17 @@ using UnityEngine.UI;
 public class BucketFillManager : MonoBehaviour
 {
     // The selected colour in which the drawing will be filled.
-    BucketFillInk ink;
+    private BucketFillInk ink;
 
-    [SerializeField] Transform selectionObject;
+    [SerializeField] private Transform selectionObject;
     public float smoothness = 2f;
 
-    [SerializeField] Transform outlineCursor;
+    [SerializeField] private Transform outlineCursor;
 
-    [SerializeField] List<BucketFillInk> inkSelection = new List<BucketFillInk>();
+    [SerializeField] private List<BucketFillInk> inkSelection = new List<BucketFillInk>();
 
-    [SerializeField] Button homeButton;
-    BucketFillEntryPoint _entryPoint;
+    [SerializeField] private Button homeButton;
+    private BucketFillEntryPoint _entryPoint;
 
     void Awake()
     {
@@ -41,26 +41,39 @@ public class BucketFillManager : MonoBehaviour
 
     void Update()
     {
-        // Check if a touch event is happening.
+        // Handle both touch and mouse inputs
+        HandleInput();
+    }
+
+    private void HandleInput()
+    {
+        Vector3 inputPosition = Vector3.zero;
+        bool inputDetected = false;
+
         if (Input.touchCount > 0)
         {
-            Touch touch = Input.GetTouch(0); // Get the first touch input.
+            Touch touch = Input.GetTouch(0);
+            inputPosition = Camera.main.ScreenToWorldPoint(touch.position);
+            inputPosition.z = 0;
+            inputDetected = touch.phase == TouchPhase.Began;
+        }
+        else if (Input.GetMouseButtonDown(0))
+        {
+            inputPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            inputPosition.z = 0;
+            inputDetected = true;
+        }
 
-            Vector3 touchPos = Camera.main.ScreenToWorldPoint(touch.position);
-            touchPos.z = 0; // Set z to 0 to align with 2D.
-
-            if (touch.phase == TouchPhase.Began)
+        if (inputDetected && ink != null)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(inputPosition, Vector2.zero);
+            if (hit.collider != null)
             {
-                if (ink)
-                {
-                    // Raycast to check if the touch is on this piece.
-                    RaycastHit2D hit = Physics2D.Raycast(touchPos, Vector2.zero);
-                    if (hit.collider != null)
-                    {
-                        BucketFillArea areaObject = hit.collider.gameObject.GetComponent<BucketFillArea>();
+                BucketFillArea areaObject = hit.collider.gameObject.GetComponent<BucketFillArea>();
 
-                        if (areaObject) { areaObject.ColourArea(ink); }
-                    }
+                if (areaObject)
+                {
+                    areaObject.ColourArea(ink);
                 }
             }
         }
@@ -72,7 +85,7 @@ public class BucketFillManager : MonoBehaviour
 
         if (inkSelection.Count <= 0)
         {
-            print("Game Over!");
+            Debug.Log("Game Over!");
         }
     }
 
@@ -81,15 +94,14 @@ public class BucketFillManager : MonoBehaviour
         _entryPoint = entryPoint;
     }
 
-    void SetFinishForPackage()
+    private void SetFinishForPackage()
     {
-        StartCoroutine (FinishAfterFireworks());
+        StartCoroutine(FinishAfterFireworks());
     }
 
-    IEnumerator FinishAfterFireworks()
+    private IEnumerator FinishAfterFireworks()
     {
         yield return new WaitForSeconds(5f);
-
         _entryPoint.InvokeGameFinished();
     }
 }
