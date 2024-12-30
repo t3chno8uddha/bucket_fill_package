@@ -1,6 +1,6 @@
 {
   "name": "com.appidea.minigames.bucket_fill",
-  "version": "0.1.3",
+  "version": "0.1.6",
   "displayName": "bucket_fill",
   "description": "game",
   "dependencies": {

@@ -86,6 +86,7 @@ public class BucketFillManager : MonoBehaviour
         if (inkSelection.Count <= 0)
         {
             Debug.Log("Game Over!");
+            SetFinishForPackage();
         }
     }
 
